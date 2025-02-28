@@ -6,7 +6,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 from IPython.display import display
-from convert_pandas_html import transform_to_inline_styles
+import dataframe_image as dfi
+from utils import apply_style
 
 
 # %%
@@ -14,7 +15,8 @@ def ppo_loss(pi_as, pi_as_old, A, epsilon=0.1):
     ratio = pi_as / pi_as_old
     term1 = ratio * A
     ratio_clipped = np.clip(ratio, 1 - epsilon, 1 + epsilon)
-    term2 = ratio_clipped * A
+    # term2 = ratio_clipped * A
+    term2 = term1
     loss = -np.min([term1, term2])
     return loss
 
@@ -38,18 +40,49 @@ def get_l_df(A):
     return df
 
 
-def apply_style(df):
-    return df.style.format(precision=2).background_gradient(cmap="RdYlGn_r", axis=None)
-
-
 A = 1
 print(f"Loss with A={A}")
-display(apply_style(get_l_df(A)))
+df = apply_style(get_l_df(A))
+display(df)
+# dfi.export(df, f"fig/ppo_loss_A_{A}.png", dpi=300)
 
 A = -1
 print(f"Loss with A={A}")
-apply_style(get_l_df(A))
+df = apply_style(get_l_df(A))
+display(df)
+# dfi.export(df, f"fig/ppo_loss_A_{A}.png", dpi=300)
+# %% Deltas
 
+
+def get_loss_change_df(A, delta):
+    pi_a_values = np.linspace(0.1, 0.9, 3)
+    loss_changes = []
+    for pi_a_old in pi_a_values:
+        row_changes = []
+        for pi_a_new in pi_a_values:
+            loss_n = ppo_loss(pi_a_new + delta, pi_a_old, A)
+            loss_o = ppo_loss(pi_a_new, pi_a_old, A)
+            row_changes.append(loss_n - loss_o)
+        loss_changes.append(row_changes)
+
+    df = pd.DataFrame(
+        loss_changes, columns=pi_a_values.astype(str), index=pi_a_values.astype(str)
+    )
+    df.index.name = "pi_old(a)"
+    df.columns.name = "pi(a)"
+    return df
+
+
+delta = 0.01
+A = 10
+print(f"Loss Change with A={A}, delta={delta}")
+df = apply_style(get_loss_change_df(A, delta), 2)
+display(df)
+# dfi.export(df, f"fig/ppo_loss_change_A_{A}_delta_{delta}.png", dpi=300)
+
+A = -10
+print(f"Loss Change with A={A}, delta={delta}")
+df = apply_style(get_loss_change_df(A, delta), 2)
+display(df)
+# dfi.export(df, f"fig/ppo_loss_change_A_{A}_delta_{delta}.png", dpi=300)
 # %%
-# print(transform_to_inline_styles(apply_style(get_l_df(1)).to_html()))
-# print(transform_to_inline_styles(apply_style(get_l_df(-1)).to_html()))
