@@ -15,8 +15,8 @@ def ppo_loss(pi_as, pi_as_old, A, epsilon=0.1):
     ratio = pi_as / pi_as_old
     term1 = ratio * A
     ratio_clipped = np.clip(ratio, 1 - epsilon, 1 + epsilon)
-    # term2 = ratio_clipped * A
-    term2 = term1
+    term2 = ratio_clipped * A
+    # term2 = term1
     loss = -np.min([term1, term2])
     return loss
 
@@ -43,14 +43,14 @@ def get_l_df(A):
 A = 1
 print(f"Loss with A={A}")
 df = apply_style(get_l_df(A))
-display(df)
-# dfi.export(df, f"fig/ppo_loss_A_{A}.png", dpi=300)
-
+# display(df)
+dfi.export(df, f"fig/ppo_loss_A_{A}.png", dpi=300)
+#%%
 A = -1
 print(f"Loss with A={A}")
 df = apply_style(get_l_df(A))
-display(df)
-# dfi.export(df, f"fig/ppo_loss_A_{A}.png", dpi=300)
+# display(df)
+dfi.export(df, f"fig/ppo_loss_A_{A}.png", dpi=300)
 # %% Deltas
 
 
@@ -77,12 +77,12 @@ delta = 0.01
 A = 10
 print(f"Loss Change with A={A}, delta={delta}")
 df = apply_style(get_loss_change_df(A, delta), 2)
-display(df)
-# dfi.export(df, f"fig/ppo_loss_change_A_{A}_delta_{delta}.png", dpi=300)
+# display(df)
+dfi.export(df, f"fig/ppo_loss_change_A_{A}_delta_{delta}.png", dpi=300)
 
 A = -10
 print(f"Loss Change with A={A}, delta={delta}")
 df = apply_style(get_loss_change_df(A, delta), 2)
-display(df)
-# dfi.export(df, f"fig/ppo_loss_change_A_{A}_delta_{delta}.png", dpi=300)
+# display(df)
+dfi.export(df, f"fig/ppo_loss_change_A_{A}_delta_{delta}.png", dpi=300)
 # %%
